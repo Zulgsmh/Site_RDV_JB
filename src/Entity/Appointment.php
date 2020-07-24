@@ -21,7 +21,10 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
  *  "order":{"date":"desc"}
  * },
  * normalizationContext={"groups"={"appointments_read"}},
- * denormalizationContext={"disable_type_enforcement"=true}
+ * denormalizationContext={
+ *      "disable_type_enforcement"=true,
+ *      "groups"={"post_customer_by_appointment"}
+ *  }
  * )
  * @ApiFilter(SearchFilter::class)
  * @ApiFilter(OrderFilter::class, properties={"date","status"})
@@ -39,7 +42,7 @@ class Appointment
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"appointments_read"})
+     * @Groups({"appointments_read","post_customer_by_appointment"})
      * @Assert\NotBlank(message="Le status de la facture est obligatoire.")
      * @Assert\Choice(choices={"PENDING","FINISH","CANCELLED"}, message="Le statut doit être PENDING ou FINISH.")
      */
@@ -47,16 +50,16 @@ class Appointment
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups({"appointments_read"})
+     * @Groups({"appointments_read", "post_customer_by_appointment"})
      * @Assert\NotBlank(message="La date du rendez-vous doit être précisée.")
      * @Assert\DateTime(message="La date doit être au format YYYY-MM-DD.")
      */
     private $date;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="object")
+     * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="object", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"appointments_read"})
+     * @Groups({"appointments_read", "post_customer_by_appointment"})
      * @Assert\NotBlank(message="Le client pour le rendez-vous doit être renseigné.")
      */
     private $customer;

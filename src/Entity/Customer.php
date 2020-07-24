@@ -24,7 +24,8 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
  *  },
  * normalizationContext={
  *  "groups"={"customers_read"}
- * }
+ * },
+ * denormalizationContext={"disable_type_enforcement"=true}
  * )
  * @ApiFilter(OrderFilter::class, properties={"lastName"})
  * @ApiFilter(SearchFilter::class)
@@ -36,13 +37,13 @@ class Customer
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"customers_read"})
+     * @Groups({"customers_read","appointments_read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"customers_read"})
+     * @Groups({"customers_read","appointments_read","post_customer_by_appointment"})
      * @Assert\NotBlank(message="Le prénom est obligatoire")
      * @Assert\Length(min=2, max=255, minMessage="Le prénom doit faire entre 2 et 255 caractères.")
      */
@@ -50,7 +51,7 @@ class Customer
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"customers_read"})
+     * @Groups({"customers_read","appointments_read","post_customer_by_appointment"})
      * @Assert\NotBlank(message="Le nom est obligatoire")
      * @Assert\Length(min=2, max=255, minMessage="Le nom doit faire entre 2 et 255 caractères.")
      */
@@ -58,7 +59,7 @@ class Customer
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"customers_read"})
+     * @Groups({"customers_read","appointments_read","post_customer_by_appointment"})
      * @Assert\NotBlank(message="L'adresse mail est obligatoire")
      * @Assert\Email(message="Le format de l'adresse mail doit être valide (ex: exemple@mail.com).")
      */
@@ -66,7 +67,7 @@ class Customer
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"customers_read"})
+     * @Groups({"customers_read","appointments_read","post_customer_by_appointment"})
      */
     private $company;
 
