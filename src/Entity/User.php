@@ -2,12 +2,20 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\UserRepository;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
+ * @ApiResource(
+ *  normalizationContext={"groups"="users_read"}
+ * )
  * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @UniqueEntity("email", message="Email already exist.")
  */
 class User implements UserInterface
 {
@@ -15,11 +23,15 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups("users_read")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
+     * @Assert\NotBlank(message="Champs vide")
+     * @Assert\Email(message = "The email '{{ value }}' is not a valid email.")
+     * @Groups("users_read")
      */
     private $email;
 
@@ -31,11 +43,14 @@ class User implements UserInterface
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
+     * @Assert\NotBlank(message="Le mot de passe est requis.")
      */
     private $password;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Le nom est requis.")
+     * @Groups("users_read")
      */
     private $name;
 
