@@ -6,6 +6,8 @@ import '../../css/login.css';
 import Field from './forms/Field';
 import {Modal, Button, Row, Col, Form} from 'react-bootstrap';
 import '../../css/modal-connexion.css';
+import AuthAPI from '../services/authAPI';
+import { useHistory } from "react-router-dom";
 
 const LoginPage = (props) => {
 
@@ -15,6 +17,7 @@ const LoginPage = (props) => {
         username: "",   
         password: ""
     });
+
     const[error, setError] = useState("");
 
     //gestion des champs
@@ -27,11 +30,11 @@ const LoginPage = (props) => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const data = await AuthAPI.authenticate(credentials);
-            setError(""); 
+            await AuthAPI.authenticate(credentials);
+            setError("");
             setIsAuthenticated(true);
             toast.success("Vous êtes connecté.")
-            history.replace("/customers")
+            history.replace("/espace")
         } catch (error) {
             setError("Aucun compte ne possède cette adresse email ou alors les informations ne correspondent pas.");
         }

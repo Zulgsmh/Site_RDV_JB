@@ -18,6 +18,13 @@ import Footer from './components/Footer';
 import Contact from './components/Contact';
 import LoginPage from './components/LoginPage';
 import AuthAPI from './services/authAPI';
+import NavbarAdmin from './components/NavbarAdmin';
+import Espace from './components/Espace';
+import AuthContext from './contexts/AuthContext';
+//TOAST
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import PrivateRoute from './components/PrivateRoute';
 
 
 AuthAPI.setup();
@@ -26,24 +33,31 @@ const App = () => {
 
     const [isAuthenticated, setIsAuthenticated] = useState(AuthAPI.isAuthenticated());
     const NavbarWithRouter = withRouter(Navbar);
+    const NavbarWithRouterAdm = withRouter(NavbarAdmin);
 
     return(
-        
+        <AuthContext.Provider value={
+            { isAuthenticated,
+             setIsAuthenticated}
+         }> 
         <div className="content-wrap">
         <HashRouter>
-            <Title/>
-                <NavbarWithRouter/>
+            {!isAuthenticated && (<Title/>)}
+                {!isAuthenticated && (<NavbarWithRouter/>)}
+                {isAuthenticated && (<NavbarWithRouterAdm/>)}
                 <Switch>
+                    
                     <Route path="/login" component={LoginPage}/>
+                    <PrivateRoute path="/espace" component={Espace}/>
                     <Route path="/contact" component={Contact}/>
                     <Route path="/" component={HomePage}/>
-                    
                 </Switch>
         
-            <Footer/>
+                {!isAuthenticated && (<Footer/>)}
         </HashRouter>
-        
+        <ToastContainer position={toast.POSITION.BOTTOM_RIGHT}/>
         </div>
+        </AuthContext.Provider>
 
     );
 };

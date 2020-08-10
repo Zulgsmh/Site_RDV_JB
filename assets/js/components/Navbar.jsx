@@ -11,6 +11,8 @@ import { Menu } from '../components/navbar/Menu/Menu';
 import { useRef } from 'react';
 import { useOnClickOutside } from '../components/navbar/hook';
 import Media from 'react-media';
+//css
+import "../../css/navbar_anon.css";
 
 const Navbar = (props) => {
 
