@@ -7,6 +7,7 @@ use App\Repository\CustomerRepository;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -15,17 +16,14 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
  * @ApiResource(
- * collectionOperations={"GET"},
- * itemOperations={"GET"},
- * attributes={
- *   "pagination_enabled"=true,
- *   "pagination_items_per_page"=10,
- *   "order":{"lastName":"desc"}
- *  },
+ * collectionOperations={"GET","POST"},
+ * itemOperations={"GET","DELETE"},
+ * subresourceOperations={
+ *   "invoices_get_subresource"={"path"="/customers/{id}/invoices"},
+ * },
  * normalizationContext={
  *  "groups"={"customers_read"}
- * },
- * denormalizationContext={"disable_type_enforcement"=true}
+ * }
  * )
  * @ApiFilter(OrderFilter::class, properties={"lastName"})
  * @ApiFilter(SearchFilter::class)
@@ -37,13 +35,13 @@ class Customer
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"customers_read","appointments_read"})
+     * @Groups({"customers_read","appointments_read","invoices_read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"customers_read","appointments_read","post_customer_by_appointment"})
+     * @Groups({"customers_read","appointments_read","post_customer_by_appointment","invoices_read"})
      * @Assert\NotBlank(message="Le prénom est obligatoire")
      * @Assert\Length(min=2, max=255, minMessage="Le prénom doit faire entre 2 et 255 caractères.")
      */
@@ -51,7 +49,7 @@ class Customer
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"customers_read","appointments_read","post_customer_by_appointment"})
+     * @Groups({"customers_read","appointments_read","post_customer_by_appointment","invoices_read"})
      * @Assert\NotBlank(message="Le nom est obligatoire")
      * @Assert\Length(min=2, max=255, minMessage="Le nom doit faire entre 2 et 255 caractères.")
      */
@@ -59,7 +57,7 @@ class Customer
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"customers_read","appointments_read","post_customer_by_appointment"})
+     * @Groups({"customers_read","appointments_read","post_customer_by_appointment","invoices_read"})
      * @Assert\NotBlank(message="L'adresse mail est obligatoire")
      * @Assert\Email(message="Le format de l'adresse mail doit être valide (ex: exemple@mail.com).")
      */
@@ -67,19 +65,35 @@ class Customer
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"customers_read","appointments_read","post_customer_by_appointment"})
+     * @Groups({"customers_read","appointments_read","post_customer_by_appointment","invoices_read"})
      */
     private $company;
 
     /**
      * @ORM\OneToMany(targetEntity=Appointment::class, mappedBy="customer")
      * @Groups({"customers_read"})
+     * @ApiSubresource
      */
-    private $object;
+    private $appointment;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Invoice::class, mappedBy="customer")
+     * @Groups({"customers_read"})
+     * @ApiSubresource
+     */
+    private $invoices;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="customers")
+     * @ORM\JoinColumn(nullable=false)
+     * @Groups({"customers_read"})
+     */
+    private $user;
 
     public function __construct()
     {
-        $this->object = new ArrayCollection();
+        $this->appointment = new ArrayCollection();
+        $this->invoices = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -138,30 +152,100 @@ class Customer
     /**
      * @return Collection|Appointment[]
      */
-    public function getObject(): Collection
+    public function getAppointment(): Collection
     {
-        return $this->object;
+        return $this->appointment;
     }
 
-    public function addObject(Appointment $object): self
+    public function addAppointment(Appointment $appointment): self
     {
-        if (!$this->object->contains($object)) {
-            $this->object[] = $object;
-            $object->setCustomer($this);
+        if (!$this->appointment->contains($appointment)) {
+            $this->appointment[] = $appointment;
+            $appointment->setCustomer($this);
         }
 
         return $this;
     }
 
-    public function removeObject(Appointment $object): self
+    public function removeAppointment(Appointment $appointment): self
     {
-        if ($this->object->contains($object)) {
-            $this->object->removeElement($object);
+        if ($this->appointment->contains($appointment)) {
+            $this->appointment->removeElement($appointment);
             // set the owning side to null (unless already changed)
-            if ($object->getCustomer() === $this) {
-                $object->setCustomer(null);
+            if ($appointment->getCustomer() === $this) {
+                $appointment->setCustomer(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Invoice[]
+     */
+    public function getInvoices(): Collection
+    {
+        return $this->invoices;
+    }
+
+    public function addInvoices(Invoice $invoices): self
+    {
+        if (!$this->invoices->contains($invoices)) {
+            $this->invoices[] = $invoices;
+            $invoices->setCustomer($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInvoices(Invoice $invoices): self
+    {
+        if ($this->invoices->contains($invoices)) {
+            $this->invoices->removeElement($invoices);
+            // set the owning side to null (unless already changed)
+            if ($invoices->getCustomer() === $this) {
+                $invoices->setCustomer(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //Dynamic Data----------------------------------------------------------
+
+    /**
+     * Permet de récupérer le total des invoices
+     * @Groups({"customers_read"})
+     * @return float
+     */
+    public function getTotalAmount(): float{
+        return array_reduce($this->invoices->toArray(), function($total,$invoice){
+            return $total + $invoice->getAmount();
+        }, 0);
+    }
+    /**
+     * Récupérer le montant qu'il reste à payer
+     * @Groups({"customers_read"})
+     * @return float
+     */
+    public function getUnpaidAmount(): float{
+        return array_reduce($this->invoices->toArray(), function($total,$invoice){
+            return $total + ($invoice->getStatus() === "PAID" || $invoice->getStatus() === "CANCELLED" ? 0 : 
+            $invoice->getAmount());
+        }, 0);
+    }
+
+
+    //----------------------------------------------------------------------
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }

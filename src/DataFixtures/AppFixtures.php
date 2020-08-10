@@ -6,6 +6,7 @@ use Faker\Factory;
 use App\Entity\User;
 use App\Entity\Customer;
 use App\Entity\Appointment;
+use App\Entity\Invoice;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Persistence\ObjectManager as PersistenceObjectManager;
@@ -33,6 +34,7 @@ class AppFixtures extends Fixture
          
         $faker = Factory::create('fr_FR');
             $user = new User();
+            $chrono = 1;
             $hash = $this->encoder->encodePassword($user, "password");
 
             $user->setName($faker->firstName())
@@ -45,7 +47,8 @@ class AppFixtures extends Fixture
                 $customer->setFirstName($faker->firstName())
                         ->setLastName($faker->lastName)
                         ->setCompany($faker->company)
-                        ->setEmail($faker->email);
+                        ->setEmail($faker->email)
+                        ->setUser($user);
                 $manager->persist($customer);
                 for($i =0; $i < mt_rand(3,10); $i++){
                     $appointment = new Appointment();
@@ -53,6 +56,16 @@ class AppFixtures extends Fixture
                             ->setStatus($faker->randomElement(['PENDING','FINISH','CANCELLED']))
                             ->setCustomer($customer);
                     $manager->persist($appointment);
+                }
+                for($i =0; $i < mt_rand(3,10); $i++){
+                    $invoice = new Invoice();
+                    $invoice->setAmount($faker->randomFloat(2,250,5000))
+                            ->setSentAt($faker->dateTimeBetween('-6 months'))
+                            ->setStatus($faker->randomElement(['SENT','PAID','CANCELLED']))
+                            ->setCustomer($customer)
+                            ->setChrono($chrono);
+                    $chrono++;
+                    $manager->persist($invoice);
                 }
             }
 

@@ -1,3 +1,159 @@
-body {
-    background-color: lightgray;
+@import '../../node_modules/animate.css/animate.min.css';
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
+*::after, *::before{
+    box-sizing: border-box;
+}
+body {
+    display: contents;
+    justify-content: center;
+}
+
+h2{
+    font-size: 2.5rem;
+    font-weight: lighter;
+}
+h3{
+    font-size: 2.5rem;
+    font-family: 'Montserrat', sans-serif;
+}
+p{
+    font-family: 'Montserrat', sans-serif;
+}
+li{
+    font-size: 0.85rem;
+}
+link:hover{
+    color: #002F95;
+}
+
+.title{
+    font-family: 'Montserrat', sans-serif;
+    margin-left: 15%;
+    transform: translate(-15%);
+    margin-top: 7%;
+    margin-bottom: 5%;
+    flex: 1;
+}
+/** Rotating logo */
+.App-logo {
+    height: 10px;
+    pointer-events: none;
+    margin-left: 10%;
+    margin-top: 10%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .App-logo {
+      animation: App-logo-spin infinite 20s linear;
+    }
+  }
+@keyframes App-logo-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+/** Navbar elements*/
+
+nav{
+    width: 87%;
+    margin: auto;
+    min-height: 15vh;
+    padding: 1rem 0rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+nav ul{
+    display: flex;
+    justify-content: space-between;
+    flex: 1;
+}
+.contact{
+    border: 1px #002F95;
+    border-radius: 20px;
+    background-color: #002F95;
+    color: white;
+    animation: bounceIn;
+    animation-duration: 0.5s;
+}
+.contact:hover{
+    border: 1px;
+    color: white;
+    animation: rotateIn;
+    animation-duration: 1s;
+}
+.contact:active{
+    border: 1px;
+    color: white;
+    animation: backOutRight;
+    animation-duration: 0.1s;
+}
+.contact p{
+    color: black;
+}
+
+.other{
+    border: 1px solid white;
+    animation: backInLeft;
+    animation-duration: 0.5s;
+}
+.other:hover{
+    border: 1px solid black;
+    border-radius: 20px;
+}
+.nav-ham{
+
+}
+
+
+/** Home page*/
+
+.home{
+    background: linear-gradient(#ffffff,#0087FF);
+    min-height: 90vh;
+}   
+.home p{
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+/**  footer */
+.main-footer{
+    bottom: 0;
+    width: 100%;
+    position: relative;
+    padding-top: 3em;
+    background: #EDDDC6;
+    color: black;
+
+}
+.content-wrap{
+    flex: 1;
+}
+.hr-footer{
+    background-color: black;
+}
+.p-footer{
+    font-size: 10px;
+}
+.ul-footer{
+    list-style: none;
+}
+.li-footer{
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+.icon{
+    color: white;
+    size: 5%;
+}
+
+
+

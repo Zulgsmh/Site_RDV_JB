@@ -29,3 +29,4 @@ services:
 
     App\Serializer\PatchedDatetimeNormalizer:
         tags: [serializer.normalizer]
+

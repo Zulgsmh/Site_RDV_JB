@@ -36,13 +36,13 @@ class Appointment
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"appointments_read"})
+     * @Groups({"appointments_read","customers_read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"appointments_read","post_customer_by_appointment"})
+     * @Groups({"appointments_read","post_customer_by_appointment","customers_read"})
      * @Assert\NotBlank(message="Le status de la facture est obligatoire.")
      * @Assert\Choice(choices={"PENDING","FINISH","CANCELLED"}, message="Le statut doit être PENDING ou FINISH.")
      */
@@ -50,14 +50,14 @@ class Appointment
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups({"appointments_read", "post_customer_by_appointment"})
+     * @Groups({"appointments_read", "post_customer_by_appointment", "customers_read"})
      * @Assert\NotBlank(message="La date du rendez-vous doit être précisée.")
      * @Assert\DateTime(message="La date doit être au format YYYY-MM-DD.")
      */
     private $date;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="object", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="appointment", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"appointments_read", "post_customer_by_appointment"})
      * @Assert\NotBlank(message="Le client pour le rendez-vous doit être renseigné.")
